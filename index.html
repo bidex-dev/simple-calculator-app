@@ -33,17 +33,21 @@
     min-height: 50px;
     overflow-x: auto;
   }
+  #buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
   button {
     font-size: 1.4rem;
     border: none;
     background: #e5e7eb;
-    margin: 5px;
     border-radius: 8px;
     padding: 18px 0;
-    width: 60px;
     cursor: pointer;
     transition: background-color 0.3s;
     user-select: none;
+    width: 100%;
   }
   button.operator {
     background: #fbbf24;
@@ -55,7 +59,6 @@
   button.equal {
     background: #2563eb;
     color: white;
-    width: 130px;
   }
   button.equal:hover {
     background: #1e40af;
@@ -67,10 +70,9 @@
   button.clear:hover {
     background: #b91c1c;
   }
-  #buttons {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+  /* Span 2 columns for zero button */
+  button.zero {
+    grid-column: span 2;
   }
 </style>
 </head>
@@ -81,24 +83,24 @@
       <button class="clear" aria-label="Clear" id="clear">C</button>
       <button aria-label="Divide" class="operator" data-value="/">÷</button>
       <button aria-label="Multiply" class="operator" data-value="*">×</button>
-      
+      <button aria-label="Subtract" class="operator" data-value="-">−</button>
+
       <button aria-label="7" data-value="7">7</button>
       <button aria-label="8" data-value="8">8</button>
       <button aria-label="9" data-value="9">9</button>
-      <button aria-label="Subtract" class="operator" data-value="-">−</button>
-      
+      <button aria-label="Add" class="operator" data-value="+">+</button>
+
       <button aria-label="4" data-value="4">4</button>
       <button aria-label="5" data-value="5">5</button>
       <button aria-label="6" data-value="6">6</button>
-      <button aria-label="Add" class="operator" data-value="+">+</button>
-      
+      <button class="equal" aria-label="Equals" id="equals" style="grid-row: 4 / 6;">=</button>
+
       <button aria-label="1" data-value="1">1</button>
       <button aria-label="2" data-value="2">2</button>
       <button aria-label="3" data-value="3">3</button>
+
+      <button aria-label="0" data-value="0" class="zero">0</button>
       <button aria-label="Decimal point" data-value=".">.</button>
-      
-      <button class="equal" aria-label="Equals" id="equals">=</button>
-      <button aria-label="0" style="width: 130px;" data-value="0">0</button>
     </div>
   </div>
 <script>
@@ -113,13 +115,11 @@
     }
 
     function appendValue(value) {
-      if (value === '.' && currentInput.slice(-1) === '.') return; // prevent multiple decimals in a row
-      
-      // Prevent starting with operator except minus
+      if (value === '.' && currentInput.slice(-1) === '.') return;
+
       if (operators.includes(value)) {
         if (currentInput === '' && value !== '-') return;
         if (operators.includes(currentInput.slice(-1))) {
-          // Replace last operator with new one
           currentInput = currentInput.slice(0, -1);
         }
       }
@@ -135,8 +135,6 @@
     function calculate() {
       try {
         if (currentInput === '') return;
-        // Replace × and ÷ symbols if any (here they are * and / so no need)
-        // Evaluate expression safely
         let result = Function('"use strict";return (' + currentInput + ')')();
         if (Number.isFinite(result)) {
           currentInput = result.toString();
