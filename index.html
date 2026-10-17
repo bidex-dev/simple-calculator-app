@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Simple Calculator</title>
+<style>
+  body {
+    background: #f3f4f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+  }
+  #calculator {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.1);
+    width: 320px;
+    padding: 20px;
+  }
+  #display {
+    background: #222;
+    color: #0fdb99;
+    font-size: 2.5rem;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: right;
+    margin-bottom: 15px;
+    user-select: none;
+    min-height: 50px;
+    overflow-x: auto;
+  }
+  button {
+    font-size: 1.4rem;
+    border: none;
+    background: #e5e7eb;
+    margin: 5px;
+    border-radius: 8px;
+    padding: 18px 0;
+    width: 60px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    user-select: none;
+  }
+  button.operator {
+    background: #fbbf24;
+    color: white;
+  }
+  button.operator:hover {
+    background: #ca8a04;
+  }
+  button.equal {
+    background: #2563eb;
+    color: white;
+    width: 130px;
+  }
+  button.equal:hover {
+    background: #1e40af;
+  }
+  button.clear {
+    background: #ef4444;
+    color: white;
+  }
+  button.clear:hover {
+    background: #b91c1c;
+  }
+  #buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+</style>
+</head>
+<body>
+  <div id="calculator" role="region" aria-label="Simple calculator">
+    <div id="display" aria-live="polite" aria-atomic="true">0</div>
+    <div id="buttons">
+      <button class="clear" aria-label="Clear" id="clear">C</button>
+      <button aria-label="Divide" class="operator" data-value="/">÷</button>
+      <button aria-label="Multiply" class="operator" data-value="*">×</button>
+      
+      <button aria-label="7" data-value="7">7</button>
+      <button aria-label="8" data-value="8">8</button>
+      <button aria-label="9" data-value="9">9</button>
+      <button aria-label="Subtract" class="operator" data-value="-">−</button>
+      
+      <button aria-label="4" data-value="4">4</button>
+      <button aria-label="5" data-value="5">5</button>
+      <button aria-label="6" data-value="6">6</button>
+      <button aria-label="Add" class="operator" data-value="+">+</button>
+      
+      <button aria-label="1" data-value="1">1</button>
+      <button aria-label="2" data-value="2">2</button>
+      <button aria-label="3" data-value="3">3</button>
+      <button aria-label="Decimal point" data-value=".">.</button>
+      
+      <button class="equal" aria-label="Equals" id="equals">=</button>
+      <button aria-label="0" style="width: 130px;" data-value="0">0</button>
+    </div>
+  </div>
+<script>
+  (function() {
+    const display = document.getElementById('display');
+    const buttons = document.getElementById('buttons');
+    let currentInput = '';
+    const operators = ['+', '-', '*', '/'];
+
+    function updateDisplay() {
+      display.textContent = currentInput || '0';
+    }
+
+    function appendValue(value) {
+      if (value === '.' && currentInput.slice(-1) === '.') return; // prevent multiple decimals in a row
+      
+      // Prevent starting with operator except minus
+      if (operators.includes(value)) {
+        if (currentInput === '' && value !== '-') return;
+        if (operators.includes(currentInput.slice(-1))) {
+          // Replace last operator with new one
+          currentInput = currentInput.slice(0, -1);
+        }
+      }
+      currentInput += value;
+      updateDisplay();
+    }
+
+    function clearInput() {
+      currentInput = '';
+      updateDisplay();
+    }
+
+    function calculate() {
+      try {
+        if (currentInput === '') return;
+        // Replace × and ÷ symbols if any (here they are * and / so no need)
+        // Evaluate expression safely
+        let result = Function('"use strict";return (' + currentInput + ')')();
+        if (Number.isFinite(result)) {
+          currentInput = result.toString();
+        } else {
+          currentInput = 'Error';
+        }
+      } catch {
+        currentInput = 'Error';
+      }
+      updateDisplay();
+    }
+
+    buttons.addEventListener('click', (event) => {
+      const btn = event.target;
+      if (!btn.matches('button')) return;
+      if (btn.id === 'clear') clearInput();
+      else if (btn.id === 'equals') calculate();
+      else {
+        appendValue(btn.dataset.value);
+      }
+    });
+
+    updateDisplay();
+  })();
+</script>
+</body>
+</html>
